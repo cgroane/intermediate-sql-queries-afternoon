@@ -39,6 +39,48 @@ SELECT a.Name, b.Name FROM SomeTable a JOIN AnotherTable b ON a.someid = b.somei
 7. Get all Track `Name`s and the playlist `Name` that they're on ( 2 joins ).
 8. Get all Track `Name`s and Album `Title`s that are the genre `"Alternative"` ( 2 joins ).
 
+select * from invoice
+join InvoiceLine on invoice.invoiceId = invoiceLine.invoiceId
+where invoiceline.unitprice > .99
+
+select invoice.InvoiceDate, Customer.firstname, customer.lastname, invoice.total
+from invoice
+join Customer on invoice.customerId = customer.customerid
+
+select * from customer
+join employee on employee.employeeId = customer.supportrepid
+
+select album.title, artist.name from album
+join artist on artist.artistid = album.artistid
+
+select playlisttrack.trackid from playlisttrack
+join playlist on playlist.playlistid = playlisttrack.playlistid
+where playlist.name = 'Music'
+
+select track.name from track
+join playlisttrack on playlisttrack.trackid = track.trackid
+where playlisttrack.playlistid = 5
+
+select track.name, playlist.name as playlist_name from track
+join playlisttrack on playlisttrack.trackid = track.trackid
+join playlist on playlisttrack.playlistid = playlist.playlistid
+
+select track.name, album.title from track
+join album on track.albumid = album.albumid
+join genre on track.genreid = genre.genreid
+where genre.name = 'Alternative'
+
+select track.name as track_name, genre.name as genre_name, album.title as album_name, artist.name as artist_name
+from track
+join playlisttrack on track.trackid = playlisttrack.trackid
+join playlist on playlisttrack.playlistid = playlist.playlistid
+join genre on track.genreId = genre.genreid
+join album on track.albumId = album.albumid
+join artist on album.artistid = artist.artistid
+where playlist.name = 'Music'
+
+
+
 ### Solution
 
 <details>
@@ -186,6 +228,27 @@ SELECT Name, Email FROM Athlete WHERE AthleteId IN ( SELECT PersonId FROM PieEat
 5. Get all tracks where the `Album` is Fireball.
 6. Get all tracks for the artist Queen ( 2 nested subqueries ).
 
+/* select * from invoice
+where invoiceid IN (select invoiceid from invoiceline where unitprice > .99) */
+
+/* select trackid from playlisttrack
+where playlistid IN (select playlistid from playlist where name = 'Music') */
+
+/* select name from track
+where trackid IN (select trackid from playlisttrack where playlistid = 5) */
+
+/* select * from track
+where genreid in (select genreid from genre where name = 'Comedy') */
+
+/* select * from track
+where albumid in (select albumid from album where title = 'Fireball') */
+
+/* select * from track 
+where albumid in (
+select albumid from album where artistid in (
+select artistid from artist where name = 'Queen'
+)) */
+
 ### Solution
 
 <details>
@@ -297,6 +360,28 @@ UPDATE Athletes SET sport = 'Picklball' WHERE sport = 'pockleball';
 5. Find all tracks that are the genre `Metal` and have no composer. Set the composer to `"The darkness around us"`.
 6. Refresh your page to remove all database changes.
 
+
+/* update customer
+set fax = null
+where fax is not null */
+
+/* update customer
+set company = 'Self'
+where company is null */
+
+/* update customer
+set lastname = 'Thompson'
+where firstname = 'Julia' and lastname = 'Barnett' */
+
+/* update customer
+set supportrepid = 4
+where email = 'luisrojas@yahoo.cl' */
+
+/* update track
+set composer = 'The darkness around us'
+where composer is null and genreid in (select genreid from genre where name = 'Metal')
+ */
+
 ### Solution
 
 <details>
@@ -388,6 +473,19 @@ GROUP BY [Column];
 2. Find a count of how many tracks are the `"Pop"` genre and how many tracks are the `"Rock"` genre.
 3. Find a list of all artists and how many albums they have.
 
+/* select count(trackid), track.genreid, genre.name from track
+join genre on genre.genreid = track.genreid
+group by genre.name */
+
+/* select count(*), genre.name from track
+join genre on track.genreid = genre.genreid
+where genre.name = 'Pop' or genre.name = 'Rock'
+group by genre.name */
+
+/* select count(*) as number_of_albums, artist.name from album
+join artist on album.artistid = artist.artistid
+group by artist.name */
+
 ### Solution
 
 <details>
@@ -454,6 +552,12 @@ FROM [Table];
 1. From the `Track` table find a unique list of all `Composer`s.
 2. From the `Invoice` table find a unique list of all `BillingPostalCode`s.
 3. From the `Customer` table find a unique list of all `Company`s.
+
+/* select distinct composer from track */
+
+/* select distinct Billingpostalcode from invoice */
+
+/* select distinct company from customer */
 
 <details>
 
@@ -540,6 +644,15 @@ DELETE FROM [Table] WHERE [Condition]
 3. Delete all `"silver"` entries from the table.
 4. Delete all entries whose value is equal to `150`.
 
+/* delete from practice_delete
+where type ='bronze' */
+
+/* delete from practice_delete
+where type = 'silver' */
+
+/* delete from practice_delete
+where value = '150' */
+
 ### Solution
 
 <details>
@@ -599,21 +712,82 @@ Let's simulate an e-commerce site. We're going to need users, products, and orde
 ### Instructions
 
 * Create 3 tables following the criteria in the summary.
+
+create table users (
+id integer primary key autoincrement,
+name varchar(40),
+email varchar(40)
+)
+
+create table product (
+id integer primary key autoincrement,
+name varchar(40),
+price float
+)
+
+create table orders (
+id integer primary key autoincrement,
+productid integer,
+foreign key (productid) references product(id)
+)
+
 * Add some data to fill up each table.
   * At least 3 users, 3 products, 3 orders.
+  
+insert into user (name, email) values ('croane', 'connor@email.com');
+insert into user (name, email) values ('gil', 'gil@email.com');
+insert into user (name, email) values ('ron', 'ron@email.com');
+
+insert into product (name, price) values ('shirt', 'connor@email.com')
+insert into product (name, price) values ('socks', 'gil@email.com')
+insert into product (name, price) values ('hat', 'ron@email.com')
+
+insert into orders (productid) values (1);
+insert into orders (productid) values (2);
+insert into orders (productid) values (3)
+  
 * Run queries against your data.
   * Get all products for the first order.
+  select * from products
   * Get all orders.
+    select * from orders
   * Get the total cost of an order ( sum the price of all products on an order ).
+  
 * Add a foreign key reference from Orders to Users.
+
+create table orders (
+id integer primary key autoincrement,
+productid integer,
+user_id integer,
+foreign key (productid) references product(id)
+  foreign key (user_id) references user(id)
+)  
+
+create junction table between orders and products -->
+   create table ordersItems (
+product_id integer,
+order_id integer,
+foreign key (product_id) references product(id)
+  foreign key (order_id) references orders(id)
+)  
+
 * Update the Orders table to link a user to each order.
 * Run queries against your data.
   * Get all orders for a user.
+  
+  select * from orders
+join user on user.id = orders.user_id
+
   * Get how many orders each user has.
+  
+  select count(*) from orders
+join user on user.id = orders.user_id
+group by user.id
 
 ### Black Diamond
 
 * Get the total amount on all orders for each user.
+
 
 ## Contributions
 
